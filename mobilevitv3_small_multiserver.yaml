@@ -1,0 +1,166 @@
+common:
+  seed: 0 #help: Random seed'
+  project: "./runs/train" #help = save to project/name
+  project_val: "./runs/val"
+  name: "exp1"
+  resume:
+  finetune:
+  finetune_ema:
+  mixed_precision: true
+  accum_freq: 5  #help=Accumulate gradients for this number of iterations
+  accum_after_epoch: 4
+  log_freq: 500 # help='Display after these many iterations'
+  auto_resume: true
+  k_best_checkpoints: 5
+  max_depth: 8
+  min_depth: 0.001
+dataset:
+  #==========================training dataset paths=============================================
+  train_clean: "../dataset/nyu/image"
+  train_depth: "../dataset/nyu/depth"
+  train_under: "../dataset/RUOD/train/under/images"
+  train_under_label: "../dataset/RUOD/train/under/labels_coco" #categories  = ['N/A','holothurian', 'echinus', 'scallop', 'starfish',
+                                                            #'fish', 'corals', 'diver', 'cuttlefish', 'turtle','jellyfish']
+  #train_under: "../dataset/RUOD/val/images"
+  #train_under_label: "../dataset/RUOD/val/val_detr"
+  #==========================val dataset paths, labels files are not necessary for validation.=======================================
+  #val_under: "./datasets/under_env/yellow"
+  val_under: "../dataset/RUOD/val/images"
+  val_under_label: "../dataset/RUOD/val/val_detr"
+  #val_under: "../dataset/RUOD/train/under/images"
+  #val_under_label: "../dataset/RUOD/train/under/labels_coco" #categories  = ['N/A','holothurian', 'echinus', 'scallop', 'starfish',
+                                                            #'fish', 'corals', 'diver', 'cuttlefish', 'turtle','jellyfish']
+  #==========================batch size setting==============================================================================
+  train_batch_size0: 2
+  val_batch_size0: 2
+  pred_batch_size0: 1
+  workers: 6
+  persistent_workers: false
+  pin_memory: store_true
+sampler:
+  name: "variable_batch_sampler"
+  crop_size_width: 480
+  crop_size_height: 480
+  vbs:
+    scale_inc: True
+    scale_inc_factor: 0.25
+    ep_intervals: [40,60,80,100]
+    crop_size_width: 512
+    crop_size_height: 512
+    max_n_scales: 5
+    min_crop_size_width: 512
+    max_crop_size_width: 512
+    min_crop_size_height: 512
+    max_crop_size_height: 512
+    check_scale: 32
+optim:
+  name: "adamw"
+  weight_decay: 0.01
+  no_decay_bn_filter_bias: false
+  adamw:
+    beta1: 0.9
+    beta2: 0.999
+scheduler:
+  name: "cosine"
+  is_iteration_based: False
+  max_epochs: 1500
+  period_epochs: 500
+  warmup_iterations: 500
+  max_iterations: 2000
+  warmup_init_lr:   0.000009
+  lr: 0.0001
+  cosine:
+    max_lr: 0.001
+    min_lr: 0.0001
+model:
+  depth_query: 256
+  scene_classes: 8
+  pretrained: "./runs/train/exp1/weights/checkpoint648.pt"
+  classification:
+    name: "mobilevit_v3"
+    object_classes: 11 # COCO has a max_obj_id of 90, so we pass `num_classes` to be 91.
+    pretrained: None
+    freeze_batch_norm: store_true
+    classifier_dropout: 0.1
+    mit:
+      mode: "small_v3"               # choices=['xx_small', 'x_small', 'small']
+      ffn_dropout: 0.0
+      attn_dropout: 0.0
+      dropout: 0.1
+      head_dim:                    #help = head dimension in transformer
+      number_heads: 4
+      no_fuse_local_global_features: false # help = Do not combine local and global features in MIT block
+      conv_kernel_size: 3
+      transformer_norm_layer: "layer_norm" #normalization layer in transformer norm layer
+                                       #choice = norm choice=[ (nn.BatchNorm1d, nn.BatchNorm2d, nn.SyncBatchNorm,nn.LayerNorm,nn.InstanceNorm1d, nn.InstanceNorm2d, nn.GroupNorm)]
+    activation:
+      name: "swish"                #choice = [relu,prelu,leaky_relu,''hard_sigmoid,swish,gelu,sigmoid,' 'relu6,hard_swish]
+      inplace: store_true
+      neg_slope: 0.1
+  normalization:
+    name: "batch_norm_2d"           #choice = norm choice=[ (nn.BatchNorm1d, nn.BatchNorm2d, nn.SyncBatchNorm,nn.LayerNorm,nn.InstanceNorm1d, nn.InstanceNorm2d, nn.GroupNorm)]
+    groups: 32                       #number of groups in group normalization layer
+    momentum: 0.1
+  activation:
+    name: "swish"
+    inplace: store_true
+    neg_slope: 0.1
+  layer:
+    global_pool: "mean"              #choice = []
+    conv_init: "kaiming_normal"      #help='Init type for conv layers'
+    conv_init_std_dev:               #Std deviation for conv layers
+    linear_init: "trunc_normal"      #helo = trunc_normal, xavier_uniform. etc..
+    linear_init_std_dev: 0.02         #help='Std deviation for conv layers'
+loss:
+  depth:
+    aux_loss: true
+    #aux_index: [0,1,2,3,4] #from low resolution to high
+    aux_index: [0,1,2] #from low resolution to high
+    #aux_weight: [0.00625,0.0125,0.025,0.0125,0.025] #[1/16,1/8,1/4,1/8,1/4]
+    #aux_weight: [0,0,0,0.0125,0.025] #[1/16,1/8,1/4,1/8,1/4]
+    #aux_weight: [0,0.125,0.025,0.0125,0.025] #[1/16,1/8,1/4,1/8,1/4]
+    #    main_index: [2,4]
+    aux_weight: [0.0625,0.125,0.025] #[1/16,1/8,1/4,1/8,1/4]
+    main_index: [2]
+  obj:
+    losses: ["labels", 'boxes', 'cardinality']
+    matcher_cost_class: 1 #Class coefficient in the matching cost
+    matcher_cost_bbox:  5 #L1 box coefficient in the matching cost
+    matcher_cost_giou: 2 #giou box coefficient in the matching cost
+    loss_ce: 1 #dict containing as key the names of the losses and as values their relative weight.
+    loss_bbox: 5
+    loss_giou: 2
+    aux_loss: True
+    aux_index: [0,1,2]
+    aux_weight: [0.0625,0.125,0.025]
+    main_index: [2]
+    eos_coef: 0.1 #relative classification weight applied to the no-object category
+ema:
+  enable: true
+  momentum: 0.1
+  ema_copy_at_epoch: -1 #help Update weights with EMA model at this epoch
+ddp:
+  enable: true
+  dist_url: "tcp://XX.XXX.XXX.XXX:XXXX"  # ip address of server with rank 0
+  rank: 0  # rank value unique for each server
+  world_size: 6
+  dist_port: 30786
+stats:
+  #name: [ "loss", "top1", "top5" ]
+  #checkpoint_metric: "top1"
+  name: ["loss_enhance","loss_obj_yolo",
+         "loss_clean","loss_clean_phy" ,
+         "loss_trans","loss_trans_grad","loss_trans_normal","loss_trans_sig",
+         "loss_light","loss_light_grad","loss_light_normal","loss_light_sig",
+         "loss_box_yolo","loss_class_yolo" ,"loss_dfl_yolo"
+          ]
+  #"loss_depth_main",
+  checkpoint_metric: ["loss_enhance","loss_obj_yolo",
+         "loss_clean","loss_clean_phy" ,
+         "loss_trans","loss_trans_grad","loss_trans_normal","loss_trans_sig",
+         "loss_light","loss_light_grad","loss_light_normal","loss_light_sig",
+         "loss_box_yolo","loss_class_yolo" ,"loss_dfl_yolo"
+          ]
+  checkpoint_metric_min: true
+
+

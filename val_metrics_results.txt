@@ -1,0 +1,74 @@
+test depth model
+common_config_file=E:\Python-master\MobileVITWP\mobilevitv3_small_multiserver.yaml
+common_seed=0
+common_project=./runs/train
+common_project_val=./runs/val
+common_name=exp1
+common_resume=None
+common_finetune=None
+common_finetune_ema=None
+common_mixed_precision=True
+common_accum_freq=5
+common_accum_after_epoch=4
+common_log_freq=500
+common_auto_resume=True
+common_k_best_checkpoints=5
+common_max_depth=8
+common_min_depth=0.001
+dataset_train_clean=../dataset/nyu/image
+dataset_train_depth=../dataset/nyu/depth
+dataset_train_under=../dataset/RUOD/train/under/images
+dataset_train_under_label=../dataset/RUOD/train/under/labels_coco
+dataset_val_under=../dataset/RUOD/val/images
+dataset_val_under_label=../dataset/RUOD/val/val_detr
+dataset_train_batch_size0=2
+dataset_val_batch_size0=2
+dataset_pred_batch_size0=1
+dataset_workers=6
+dataset_persistent_workers=False
+dataset_pin_memory=store_true
+sampler_name=variable_batch_sampler
+sampler_crop_size_width=512
+sampler_crop_size_height=512
+sampler_vbs_scale_inc=True
+sampler_vbs_scale_inc_factor=0.25
+sampler_vbs_ep_intervals=[40, 60, 80, 100]
+sampler_vbs_crop_size_width=512
+sampler_vbs_crop_size_height=512
+sampler_vbs_max_n_scales=5
+sampler_vbs_min_crop_size_width=512
+sampler_vbs_max_crop_size_width=512
+sampler_vbs_min_crop_size_height=512
+sampler_vbs_max_crop_size_height=512
+sampler_vbs_check_scale=32
+optim_name=adamw
+optim_weight_decay=0.01
+optim_no_decay_bn_filter_bias=False
+optim_adamw_beta1=0.9
+optim_adamw_beta2=0.999
+scheduler_name=cosine
+scheduler_is_iteration_based=False
+scheduler_max_epochs=1500
+scheduler_period_epochs=500
+scheduler_warmup_iterations=14000
+scheduler_max_iterations=14000
+scheduler_warmup_init_lr=9e-06
+scheduler_lr=0.0001
+scheduler_cosine_max_lr=0.001
+scheduler_cosine_min_lr=0.0001
+model_depth_query=256
+model_scene_classes=8
+model_pretrained=./runs/train/exp1/weights/checkpoint648.pt
+ 
+     Class     Images     Labels          P          R     mAP@.5 mAP@.5:.95
+       all       4200      18296      0.881      0.618      0.768      0.539
+holothurian       4200       1875      0.895      0.478      0.695      0.442
+   echinus       4200       2452      0.896      0.643      0.776       0.45
+   scallop       4200       1685      0.796      0.475      0.663      0.415
+  starfish       4200       1695      0.879      0.645      0.784      0.479
+      fish       4200       3157      0.871      0.403       0.65      0.428
+    corals       4200       2296      0.766      0.551      0.692       0.49
+     diver       4200       1789      0.924       0.76      0.864      0.645
+cuttlefish       4200       1492      0.941      0.816      0.898      0.717
+    turtle       4200       1252       0.96      0.811        0.9      0.726
+ jellyfish       4200        603      0.882      0.595       0.76      0.593
