@@ -63,19 +63,8 @@ def get_train_val_dataset(opts):
                             batch_sampler=val_sampler,
                             collate_fn=ImageDataset.collate_fn
                             )
-    #===============================pred loader: batchszie=1 for one image with ori size=========================
-    bs_pred = getattr(opts, "dataset_pred_batch_size0", 1)
-    pred_dataset = ImageDataset_val(opts, is_training=False)
-    pred_loader = DataLoader(dataset=pred_dataset,
-                            batch_size=1,  # Handled inside data sampler
-                            shuffle=False,
-                            # num_workers=getattr(opts, "dataset_workers", 1),
-                            # pin_memory=getattr(opts, "dataset_pin_memory", False),
-                            collate_fn=ImageDataset_val.collate_fn
-                            )
-
-
-    return train_loader, train_sampler, val_loader,pred_loader
+ 
+    return train_loader, train_sampler, val_loader 
 
 
 def make_divisible(v: Union[float, int], divisor: Optional[int] = 8,
