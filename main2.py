@@ -16,7 +16,7 @@ from dataloader_wp.Mobile_dataloader import get_train_val_dataset
 def main(opts):
     device = getattr(opts, "dev_device", torch.device('cpu'))
     # -------------setting dataset and model-------------
-    train_loader, train_sampler, val_loader,pred_loader = get_train_val_dataset(opts)
+    train_loader, train_sampler, val_loader = get_train_val_dataset(opts)
     backbone = mobile_backbone(opts)
     neck = mobile_neck(opts)
     head = mobile_head(opts)
