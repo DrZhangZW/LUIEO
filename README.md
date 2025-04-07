@@ -4,7 +4,12 @@ This article has been accepted by IEEE Transactions on Instrumentation and Measu
 
 Modifying the validation or inference dataset path in the mobilevitv3_small_multiserver.yaml file does not require label data. 
 
-The weights of model will be announced soon.
+The weights of model can be obtained by the from any of the following links.
+https://pan.baidu.com/s/1dC3vpR2v4dNThKBBN05lIw, re7u
+
+https://drive.google.com/file/d/1h3bG3VIPUH6UiKcH4oFstSNK6A67zpNo/view?usp=drive_link
+
+Download the pre trained weights and place them in the following folder： ./runs/train/exp1/weights/checkpoint648.pt
 
 If it is helpful to you, please cite 
 
